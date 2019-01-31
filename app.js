@@ -118,15 +118,24 @@ var UIController = (function(){
         clearFields: function(){
             var fields, fieldsArray;
 
+            //Using the Array.prototype.slice without parameters it starts from the beginning and we convert the NodeList to an array. Then with call we specify the this as the fields variable. This is a trick.  The slice method thinks that we give it an array so it returns an array. We store the result in the fieldsArr and we can now use forEach method on NodeList. 
+
             fields = document.querySelectorAll(DOMstrings.inputDescription + ', ' + DOMstrings.inputValue);
 
             fieldsArray = Array.prototype.slice.call(fields);
 
             fieldsArray.forEach(function(current, index, array){
-                current.value = "";
+                //The current variable stores the <input> element. To read a value of value attribute of this element we're using value property.then "" is to empty string
+                current.value = ""; 
             });
 
             fieldsArray[0].focus();
+
+            /* we can just use this easier method, but that above method is to show how to work with Nodelist
+            document.querySelector(DOMstrings.inputDescription).value = "";
+            document.querySelector(DOMstrings.inputValue).value = "";
+            document.querySelector(DOMstrings.inputDescription).focus();
+            */
         },
 
         getDOMstrings: function(){
@@ -167,7 +176,7 @@ var controller = (function(budgetCtrl, UICtrl){
 
         //2. Add the item to the budget controller
 
-        newItem = budgetCtrl.addItem(input.type, input.description, input.value); //this use var input as argument(type des val), because in function addItem that same argument
+        newItem = budgetCtrl.addItem(input.type, input.description, input.value); //this use var input as argument(type des val), because in the function addItem that same argument
 
         //3. add the item to UI
         UICtrl.addListItem(newItem, input.type);

@@ -16,9 +16,16 @@ var budgetController = (function(){
         this.value = value
     };
 
-    var totalExenses = 0;
+    var calculateTotal= function(type){
+        var sum = 0; //initial value
+
+        data.allItems[type].forEach(function(cur){ //looping from array, ex: [200, 400], sum = 0 + 200 then sum = 200 + 400
+            sum += cur.value; 
+        });
+        data.totals[type] = sum;
+    };
    
-    //don't forget, this is still private
+    //TODO: don't forget, this is still private
     var data = {
         allItems: {
             exp: [],
@@ -27,10 +34,12 @@ var budgetController = (function(){
         totals: {
             exp: 0,
             inc: 0
-        }
+        },
+        budget: 0,
+        percentage: -1 // it mean doesn't exit at this point
     };
 
-    return {
+    return {    //return mean public, it can be accessed
         addItem: function(type, des, val){
             var newItem, ID;
 
@@ -54,6 +63,32 @@ var budgetController = (function(){
 
             //return the new element
             return newItem;
+        },
+
+        calculateBudget: function(){
+            // calculate total income and expense
+                calculateTotal('exp');
+                calculateTotal('inc');
+
+            //calculate the budget: income - expense, then stores it into data.budget
+            data.budget =  data.totals.inc - data.totals.exp; 
+
+            //calculate the percentage of income that we spentm then stores it into data.percentage
+
+            if(data.totals.inc > 0){  //if total inc greater than 0, then it can use percentage method
+                data.percentage =  Math.round((data.totals.exp / data.totals.inc) * 100);
+            }else{
+                data.percentage = -1;//doesn't exist
+            }
+        },
+
+        getBudget: function(){ //for return from calculateBudget
+            return{ //so we can return four or more values at same time
+                budget: data.budget,
+                totalInc: data.totals.inc,
+                totalExp: data.totals.exp,
+                percentage: data.percentage
+            };
         },
 
         testing: function(){
@@ -166,12 +201,13 @@ var controller = (function(budgetCtrl, UICtrl){
     var updateBudget = function(){
         
         //1. Calculate the budget 
+        budgetCtrl.calculateBudget();
 
-
-
-        //2. return bduget
-
+        //2. return budget
+        var budget = budgetCtrl.getBudget(); //then stores it into var budget
+        
         //2. display budget to UI
+        console.log(budget); //testing purpose
     }
 
     var ctrlAddItem = function(){
@@ -193,7 +229,7 @@ var controller = (function(budgetCtrl, UICtrl){
 
             //5. calculate and update budget
             updateBudget();
-            
+
         }else{
             alert('Hmm.. Something went wrong!\n 1. Description is missing\n2. Value must above 0 or not empty')
         }

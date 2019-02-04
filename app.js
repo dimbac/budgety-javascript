@@ -69,6 +69,24 @@ var budgetController = (function(){
             return newItem;
         },
 
+        deleteItem: function(type, id){
+
+            var ids, index;
+
+            //map is actually return as brand new array
+            ids = data.allItems[type].map(function(current){
+                return current.id;
+            });
+
+            //index of is return the index number of the element of the array we input (id)
+            index = ids.indexOf(id);
+
+            //remember sPlice = remove element, while slice = create a copy
+            if(index !== -1){
+                data.allItems[type].splice(index, 1);
+            }
+        },
+
         calculateBudget: function(){
             // calculate total income and expense
                 calculateTotal('exp');
@@ -298,9 +316,11 @@ var controller = (function(budgetCtrl, UICtrl){
 
             splitID = itemID.split('-');
             type = splitID[0];
-            ID = splitID[1];
+            ID = parseInt(splitID[1]); //because that a string, cannot compare with number, so we must convert string into number
 
             //1. delete the item from the data structure
+                var deletedItem = budgetCtrl.deleteItem(type, ID);
+                console.log(deletedItem + ' deleted');//testing purpose
 
             //2. delete the item from the UI
 

@@ -17,9 +17,13 @@ var budgetController = (function(){
     };
 
     var calculateTotal= function(type){
+        //this is for calculate the total
         var sum = 0; //initial value
 
-        data.allItems[type].forEach(function(cur){ //looping from array, ex: [200, 400], sum = 0 + 200 then sum = 200 + 400
+        //looping from array (ex: exp, inc)
+        data.allItems[type].forEach(function(cur){ 
+            //ex: [200, 400], sum = 0 + 200 
+            //then sum = 200 + 400 = 600, etc
             sum += cur.value; 
         });
         data.totals[type] = sum;
@@ -73,7 +77,7 @@ var budgetController = (function(){
             //calculate the budget: income - expense, then stores it into data.budget
             data.budget =  data.totals.inc - data.totals.exp; 
 
-            //calculate the percentage of income that we spentm then stores it into data.percentage
+            //calculate the percentage of income that we spent, then stores it into data.percentage
 
             if(data.totals.inc > 0){  //if total inc greater than 0, then it can use percentage method
                 data.percentage =  Math.round((data.totals.exp / data.totals.inc) * 100);
@@ -82,8 +86,9 @@ var budgetController = (function(){
             }
         },
 
-        getBudget: function(){ //for return from calculateBudget
-            //we must create new function,so we can return four or more values at same time, then pass it into displayBudget()
+        getBudget: function(){ //for return the result from calculateBudget
+            
+            //we must create new function for return multiple value calculateBudget, so we can return four or more values at same time, then pass it into displayBudget()
             //remember, return = exposes it to public, can be accessed anywhere
             return{ 
                 budget: data.budget,
@@ -114,7 +119,8 @@ var UIController = (function(){
         budgetLabel: '.budget__value',
         incomeLabel: '.budget__income--value',
         expensesLabel: '.budget__expenses--value',
-        percentageLabel: '.budget__expenses--percentage'
+        percentageLabel: '.budget__expenses--percentage',
+        container: '.container'
     };
 
     return { //remember, return = exposes it to public, can be accessed anywhere
@@ -136,13 +142,13 @@ var UIController = (function(){
                 
                 element = DOMstrings.incomeContainer;
 
-                html = '<div class="item clearfix" id="income-%id%"> <div class="item__description">%description%</div> <div class="right clearfix"> <div class="item__value">%value%</div> <div class="item__delete"> <button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
+                html = '<div class="item clearfix" id="inc-%id%"> <div class="item__description">%description%</div> <div class="right clearfix"> <div class="item__value">%value%</div> <div class="item__delete"> <button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
 
             } else if(type === 'exp'){
                 
                 element = DOMstrings.expensesContainer;
                 
-                html = '<div class="item clearfix" id="expense-%id%"> <div class="item__description">%description%</div> <div class="right clearfix"><div class="item__value">%value%</div><div class="item__percentage">21%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
+                html = '<div class="item clearfix" id="exp-%id%"> <div class="item__description">%description%</div> <div class="right clearfix"><div class="item__value">%value%</div><div class="item__percentage">21%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
             }
             
             //replace the placeholder text with some actual data
@@ -179,8 +185,10 @@ var UIController = (function(){
         },
 
         displayBudget: function(obj){
-            //this function displayBudget to manipulate DOM, store DOM to obj for pass 
-            //pass it from return getBudget()
+
+            //this is for display the result getBudget by selecting DOMstring text content
+            //btw, this obj is placeholder to mimic getting the 'real' data which var budget (from getBudget())
+
             document.querySelector(DOMstrings.budgetLabel).textContent = obj.budget;
             document.querySelector(DOMstrings.incomeLabel).textContent = obj.totalInc;
             document.querySelector(DOMstrings.expensesLabel).textContent = obj.totalExp;
@@ -220,6 +228,9 @@ var controller = (function(budgetCtrl, UICtrl){
                 ctrlAddItem();
             }
         });
+
+        //we select container because it contain income and expense, then let event 'ctrlDeleteItem bubbling which the target is ID
+        document.querySelector(DOM.container).addEventListener('click', ctrlDeleteItem);
     };
 
 
@@ -229,13 +240,15 @@ var controller = (function(budgetCtrl, UICtrl){
         budgetCtrl.calculateBudget();
 
         //2. return budget
-        //then stores getBudget() into var budget, so we can call var budget
+        //then stores getBudget(which return the result) into var budget, so we can call var budget
         var budget = budgetCtrl.getBudget(); 
         
         //2. display budget to UI
-        // then call var budget
+        // then call var budget in argument. replace function displayBudget (obj) to (budget)
         UICtrl.displayBudget(budget);
-    }
+
+        //so we can call function updateBudget which calculate > return > display
+    };
 
     var ctrlAddItem = function(){
 
@@ -262,6 +275,38 @@ var controller = (function(budgetCtrl, UICtrl){
         }else{
             alert('Hmm.. Something went wrong!\n 1. Description is missing\n2. Value must above 0 or not empty')
         }
+
+        //so we can call function ctrlAddItem which  input, addlistItem, clearfields, updateBudget, 
+    };
+
+    /*event is simply a variable name that we use as the argument in the callback function. We could call this anything we like,However, it is standard practice to call this argument 'event'  or 'e' , so that it's clear what type of variable will be used here. This is because the event  argument will receive an object from the addEventListener method that is an instance of the Event prototype. */
+
+    var ctrlDeleteItem = function(event){
+        var itemID, splitID, type, ID;
+        
+        itemID = event.target.parentNode.parentNode.parentNode.parentNode.id;
+
+        //console.log(itemID);
+
+        /* if we happen to have other ids, we can do the if statement as:
+            if(itemID.search("income")){
+                //code
+            } */
+
+        if(itemID){
+            /*basically broke which '-' into different part. ex: Pulling output = 'inc-1' > then split into ('inc', '1') as array*/
+
+            splitID = itemID.split('-');
+            type = splitID[0];
+            ID = splitID[1];
+
+            //1. delete the item from the data structure
+
+            //2. delete the item from the UI
+
+            //3. update and show the new budget
+        }
+
     };
 
     return {

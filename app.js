@@ -39,7 +39,7 @@ var budgetController = (function(){
         percentage: -1 // it mean doesn't exit at this point
     };
 
-    return {    //return mean public, it can be accessed
+    return {   //remember, return = exposes it to public, can be accessed anywhere
         addItem: function(type, des, val){
             var newItem, ID;
 
@@ -83,7 +83,9 @@ var budgetController = (function(){
         },
 
         getBudget: function(){ //for return from calculateBudget
-            return{ //so we can return four or more values at same time
+            //we must create new function,so we can return four or more values at same time, then pass it into displayBudget()
+            //remember, return = exposes it to public, can be accessed anywhere
+            return{ 
                 budget: data.budget,
                 totalInc: data.totals.inc,
                 totalExp: data.totals.exp,
@@ -108,11 +110,16 @@ var UIController = (function(){
         inputValue: '.add__value',
         inputBtn: '.add__btn',
         incomeContainer: '.income__list',
-        expensesContainer: '.expenses__list'
+        expensesContainer: '.expenses__list',
+        budgetLabel: '.budget__value',
+        incomeLabel: '.budget__income--value',
+        expensesLabel: '.budget__expenses--value',
+        percentageLabel: '.budget__expenses--percentage'
     };
 
-    return { //here we connect to index.html, for typing
-        getInput: function(){
+    return { //remember, return = exposes it to public, can be accessed anywhere
+
+        getInput: function(){ //here we connect to index.html, for user typing
             return {
                 type: document.querySelector(DOMstrings.inputType).value,  //will be inc or exp
                 description: document.querySelector(DOMstrings.inputDescription).value,
@@ -171,8 +178,25 @@ var UIController = (function(){
             */
         },
 
+        displayBudget: function(obj){
+            //this function displayBudget to manipulate DOM, store DOM to obj for pass 
+            //pass it from return getBudget()
+            document.querySelector(DOMstrings.budgetLabel).textContent = obj.budget;
+            document.querySelector(DOMstrings.incomeLabel).textContent = obj.totalInc;
+            document.querySelector(DOMstrings.expensesLabel).textContent = obj.totalExp;
+
+            if(obj.percentage > 0){
+            //simple:  obj.percentage is not 0 but greater than 0, then display number with percentage sign
+                document.querySelector(DOMstrings.percentageLabel).textContent = obj.percentage + '%';
+            }else{ 
+                document.querySelector(DOMstrings.percentageLabel).textContent = '---';
+            }
+
+        },
+
         getDOMstrings: function(){
-            return DOMstrings; //for tell that DOMstrings is public. so it can be accessed
+            //remember, return = exposes it to public, can be accessed anywhere
+            return DOMstrings;
         }
     };
 
@@ -183,6 +207,7 @@ var UIController = (function(){
 //FIXME: GLOBAL APP CONTROLLER
 var controller = (function(budgetCtrl, UICtrl){
 
+    //for user use keyboar
     var setupEventListener = function(){
 
         var DOM = UICtrl.getDOMstrings();
@@ -204,10 +229,12 @@ var controller = (function(budgetCtrl, UICtrl){
         budgetCtrl.calculateBudget();
 
         //2. return budget
-        var budget = budgetCtrl.getBudget(); //then stores it into var budget
+        //then stores getBudget() into var budget, so we can call var budget
+        var budget = budgetCtrl.getBudget(); 
         
         //2. display budget to UI
-        console.log(budget); //testing purpose
+        // then call var budget
+        UICtrl.displayBudget(budget);
     }
 
     var ctrlAddItem = function(){
@@ -218,8 +245,10 @@ var controller = (function(budgetCtrl, UICtrl){
         input = UICtrl.getInput();
 
         if(input.description !==  "" && !isNaN(input.value) && input.value > 0){
+
             //2. Add the item to the budget controller
-            newItem = budgetCtrl.addItem(input.type, input.description, input.value); //this use var input as argument(type des val), because in the function addItem that same argument
+            //this use var input as argument(type des val), because in the function addItem that same argument
+            newItem = budgetCtrl.addItem(input.type, input.description, input.value); 
 
             //3. add the item to UI
             UICtrl.addListItem(newItem, input.type);
@@ -236,13 +265,20 @@ var controller = (function(budgetCtrl, UICtrl){
     };
 
     return {
+        //reset everything into 0
         init: function(){
-            console.log('TEST STARTED');
+            console.log('APPLICATION HAS STARTED');
+            UICtrl.displayBudget({
+                budget: 0,
+                totalInc: 0,
+                totalExp: 0,
+                percentage: -1
+            });
             setupEventListener();
         }
     };
 
 })(budgetController, UIController);
 
-
-controller.init(); //this init will be first run then run setupEventListener
+//this init will be first run then run setupEventListener
+controller.init(); 

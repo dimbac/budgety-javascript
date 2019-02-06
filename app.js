@@ -72,16 +72,22 @@ var budgetController = (function(){
         deleteItem: function(type, id){
 
             var ids, index;
+            //id = 6
+            // data.allItem[type][id];
+            // ids = [1 2 4 6 8]
+            // index  = 3
 
             //map is actually return as brand new array
             ids = data.allItems[type].map(function(current){
                 return current.id;
             });
 
-            //index of is return the index number of the element of the array we input (id)
+            // simple: The indexOf() method searches the array for the specified item, and returns its position.
+            // so ids is new array > indexOf()is search the array for the 'id' > stores into var index
             index = ids.indexOf(id);
 
             //remember sPlice = remove element, while slice = create a copy
+            //splice (index positiion to add/remove, howmanyremoved)
             if(index !== -1){
                 data.allItems[type].splice(index, 1);
             }
@@ -177,6 +183,15 @@ var UIController = (function(){
             //insert the HTML into the DOM
             document.querySelector(element).insertAdjacentHTML('beforeend', newHtml);
 
+        },
+
+        deleteListItem: function(selectorID){
+            var el ;
+            
+            el = document.getElementById(selectorID);
+
+            //select parent using parentNode then removeChild, in that argument we select 'el'
+            el.parentNode.removeChild(el)
         },
 
         clearFields: function(){
@@ -316,15 +331,17 @@ var controller = (function(budgetCtrl, UICtrl){
 
             splitID = itemID.split('-');
             type = splitID[0];
-            ID = parseInt(splitID[1]); //because that a string, cannot compare with number, so we must convert string into number
+            ID = parseInt(splitID[1]); //because that a string, cannot compare with number, so we must convert string into number using parseInt
 
             //1. delete the item from the data structure
-                var deletedItem = budgetCtrl.deleteItem(type, ID);
-                console.log(deletedItem + ' deleted');//testing purpose
+            var deletedItem = budgetCtrl.deleteItem(type, ID);
+            console.log(deletedItem + ' deleted');//testing purpose
 
             //2. delete the item from the UI
+            UICtrl.deleteListItem(itemID);
 
             //3. update and show the new budget
+            updateBudget();
         }
 
     };

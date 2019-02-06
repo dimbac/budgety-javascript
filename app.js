@@ -179,7 +179,8 @@ var UIController = (function(){
         incomeLabel: '.budget__income--value',
         expensesLabel: '.budget__expenses--value',
         percentageLabel: '.budget__expenses--percentage',
-        container: '.container'
+        container: '.container',
+        expensesPercLabel: '.item__percentage'
     };
 
     return { //remember, return = exposes it to public, can be accessed anywhere
@@ -271,6 +272,41 @@ var UIController = (function(){
 
         },
 
+        displayPercentages: function(percentages){
+            //querySelectorAll return a nodeList
+            var fields = document.querySelectorAll(DOMstrings.expensesPercLabel); 
+
+            //the nodeListForEach function is basically replicating the operation of the regular forEach method. 
+            //So when we call this function, 'list' has the variable 'fields', and 'callback'  has the anonymous function
+            var nodeListForEach = function(list, callback){
+                for (var i = 0; i < list.length; i++){
+                    //list[i]  is passed into the parameter 'current' , and 'i' is passed into the parameter 'index'
+                    callback(list[i], i); 
+                }
+            };  
+
+            nodeListForEach(fields, function(current, index){
+                if(percentages[index] > 0){
+                    current.textContent = percentages[index] + '%';
+                }else{
+                    current.textContent = '---';
+                }
+            });
+
+            /* we can just use this simple forEach, that above is just a way to use 'for var'
+              
+                var fields = document.querySelectorAll(DOMstrings.expensesPercentageLabel);    
+                Array.prototype.forEach.call(fields, function (current, index) {
+                    if (percentages[index] > 0) {
+                        current.textContent = percentages[index] + '%';
+                    } else {
+                        current.textContent = '---';
+                    }
+                });
+            */
+
+        },
+
         getDOMstrings: function(){
             //remember, return = exposes it to public, can be accessed anywhere
             return DOMstrings;
@@ -328,7 +364,7 @@ var controller = (function(budgetCtrl, UICtrl){
         var percentages = budgetCtrl.getPercentages(); //getPercentage then stores it into var 'percentages'
 
         //3. update the UI with the new percentage
-        console.log(percentages);
+        UICtrl.displayPercentages(percentages);
 
     };
 

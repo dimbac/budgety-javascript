@@ -91,6 +91,15 @@ var budgetController = (function(){
             if(index !== -1){
                 data.allItems[type].splice(index, 1);
             }
+
+            /* 
+            //we can use this forEach method
+            data.allItems[type].forEach(function(cur, index) {
+                if (cur.id === ID) {
+                data.allItems[type].splice(index, 1);
+                }
+            });
+            */
         },
 
         calculateBudget: function(){

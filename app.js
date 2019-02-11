@@ -180,7 +180,8 @@ var UIController = (function(){
         expensesLabel: '.budget__expenses--value',
         percentageLabel: '.budget__expenses--percentage',
         container: '.container',
-        expensesPercLabel: '.item__percentage'
+        expensesPercLabel: '.item__percentage',
+        dateLabel: '.budget__title--month'
     };
 
     var formatNumber = function(num, type){
@@ -341,6 +342,19 @@ var UIController = (function(){
 
         },
 
+        displayMonth: function(){
+            var now, months, month, year;
+
+            now = new Date(); // function Construct Date, simply call Date then stores into var now
+
+            months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+            month = now.getMonth();
+            year = now.getFullYear();//its gonna return this year
+
+            document.querySelector(DOMstrings.dateLabel).textContent = months[month] + ' ' + year;
+        },
+
         getDOMstrings: function(){
             //remember, return = exposes it to public, can be accessed anywhere
             return DOMstrings;
@@ -475,6 +489,7 @@ var controller = (function(budgetCtrl, UICtrl){
         //reset everything into 0
         init: function(){
             console.log('APPLICATION HAS STARTED');
+            UICtrl.displayMonth();
             UICtrl.displayBudget({
                 budget: 0,
                 totalInc: 0,

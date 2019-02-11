@@ -216,6 +216,15 @@ var UIController = (function(){
 
     };
 
+    //the nodeListForEach function is basically replicating the operation of the regular forEach method. 
+    //So when we call this function, 'list' has the variable 'fields', and 'callback'  has the anonymous function
+    var nodeListForEach = function(list, callback){
+        for (var i = 0; i < list.length; i++){
+            //list[i]  is passed into the parameter 'current' , and 'i' is passed into the parameter 'index'
+            callback(list[i], i); 
+        }
+    };  
+
     return { //remember, return = exposes it to public, can be accessed anywhere
 
         getInput: function(){ //here we connect to index.html, for user typing
@@ -311,15 +320,6 @@ var UIController = (function(){
             //querySelectorAll return a nodeList
             var fields = document.querySelectorAll(DOMstrings.expensesPercLabel); 
 
-            //the nodeListForEach function is basically replicating the operation of the regular forEach method. 
-            //So when we call this function, 'list' has the variable 'fields', and 'callback'  has the anonymous function
-            var nodeListForEach = function(list, callback){
-                for (var i = 0; i < list.length; i++){
-                    //list[i]  is passed into the parameter 'current' , and 'i' is passed into the parameter 'index'
-                    callback(list[i], i); 
-                }
-            };  
-
             nodeListForEach(fields, function(current, index){
                 if(percentages[index] > 0){
                     current.textContent = percentages[index] + '%';
@@ -355,6 +355,22 @@ var UIController = (function(){
             document.querySelector(DOMstrings.dateLabel).textContent = months[month] + ' ' + year;
         },
 
+
+        changedType: function(){
+
+            var fields = document.querySelectorAll(
+                DOMstrings.inputType + ',' + 
+                DOMstrings.inputDescription + ',' + 
+                DOMstrings.inputValue);
+
+            nodeListForEach(fields, function(cur){
+                cur.classList.toggle('red-focus');
+            });
+
+            document.querySelector(DOMstrings.inputBtn).classList.toggle('red');
+
+        },
+
         getDOMstrings: function(){
             //remember, return = exposes it to public, can be accessed anywhere
             return DOMstrings;
@@ -384,6 +400,8 @@ var controller = (function(budgetCtrl, UICtrl){
 
         //we select container because it contain income and expense, then let event 'ctrlDeleteItem bubbling which the target is ID
         document.querySelector(DOM.container).addEventListener('click', ctrlDeleteItem);
+
+        document.querySelector(DOM.inputType).addEventListener('change', UICtrl.changedType);
     };
 
 

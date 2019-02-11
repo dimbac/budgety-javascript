@@ -183,6 +183,38 @@ var UIController = (function(){
         expensesPercLabel: '.item__percentage'
     };
 
+    var formatNumber = function(num, type){
+        var numSplit, int, dec, type;
+
+        num = Math.abs(num);
+        num = num.toFixed(2); //ex: 2345.4578 to 2345.46
+
+        numSplit = num.split('.'); // split between '.' then into as array
+
+        //then stores it into var
+        int = numSplit[0];
+        
+        if(int.length > 3){ //if more than 3, ex: 2345 then add a coma
+            // start at position zero and read one number, it would read 2 from 2345
+        /*
+            int = int.substr(0, 1) + ',' + int.substr(1, 3); 
+            //but this hardcoded because if input 23455, then 2,3455
+        */
+
+        int = int.substr(0, int.length - 3) + ',' + int.substr(int.length - 3, 3);
+        //if input 23455 and length is 5, start at position zero and read 5-3=2, it read number two
+        //then add comas, and start at position two which (int.length-3), and read until end 
+
+        }
+
+        dec = numSplit[1];
+
+        //type === 'exp' ? sign = '-' : sign = '+';
+
+        return (type === 'exp' ? '-' : '+') + int + '.' + dec;
+
+    };
+
     return { //remember, return = exposes it to public, can be accessed anywhere
 
         getInput: function(){ //here we connect to index.html, for user typing
@@ -214,7 +246,7 @@ var UIController = (function(){
             //replace the placeholder text with some actual data
             newHtml = html.replace('%id%', obj.id);
             newHtml = newHtml.replace('%description%', obj.description);
-            newHtml = newHtml.replace('%value%', obj.value);
+            newHtml = newHtml.replace('%value%', formatNumber(obj.value, type));
 
             //insert the HTML into the DOM
             document.querySelector(element).insertAdjacentHTML('beforeend', newHtml);
@@ -258,10 +290,12 @@ var UIController = (function(){
 
             //this is for display the result getBudget by selecting DOMstring text content
             //btw, this obj is placeholder to mimic getting the 'real' data which var budget (from getBudget())
+            var type;
+            obj.budget > 0 ? type = 'inc' : type = 'exp';
 
-            document.querySelector(DOMstrings.budgetLabel).textContent = obj.budget;
-            document.querySelector(DOMstrings.incomeLabel).textContent = obj.totalInc;
-            document.querySelector(DOMstrings.expensesLabel).textContent = obj.totalExp;
+            document.querySelector(DOMstrings.budgetLabel).textContent = formatNumber(obj.budget, type);
+            document.querySelector(DOMstrings.incomeLabel).textContent = formatNumber(obj.totalInc, 'inc');
+            document.querySelector(DOMstrings.expensesLabel).textContent = formatNumber(obj.totalExp, 'exp');
 
             if(obj.percentage > 0){
             //simple:  obj.percentage is not 0 but greater than 0, then display number with percentage sign
